@@ -11,19 +11,15 @@ Superposer le volume de tirs et le nombre de buts permet de distinguer ce qui es
 ![2018-19](../images/proba_but_2018.png)
 ![2019-20](../images/proba_but_2019.png)
 ![2020-21](../images/proba_but_2020.png)
-Pour les trois saisons la tendance reste la même, plus un tir est loin moins il a de chances d'être un but. 
+Pour les trois saisons la tendance reste la même, plus un tir est loin moins il a de chances d'être un but. Jusqu'à ce que le tir est très loin la probabilité remonte étrangement pour tous les graphes. Parce que pour ces distances là les tirs se font très très rares et ils arrivent presque uniquement lorsque le gardien n'est pas dans le but.
 ### Changements entre saisons?
 Pas vraiment, on remarque juste qu'il y a plus de variabilité lorsque l'effectif des bins est plus petit mais la forme de la courbe et des bins reste plutôt stable.
 ### Pourquoi ce graphique?
 La courbe montre directement la probabilité et l'histogramme du nombre de tirs indique où l'estimation est la plus fiable.
 ### Calcul de la distance
-Puisque pour la grande majorité des tirs xCoord et yCoord sont disponibles, nous avons choisi de calculer la distance simplement via une distance euclidienne. On trouve donc l'écart des coordonnées du tirs (on prend la valeur absolue pour x afin de standardiser le côté d'attaque) et du but et on considère cela comme distance. 
-```python
-def compute_shot_distance(x_coord, y_coord, goal_x=89.0, goal_y=0.0):
-    """Distance euclidienne entre le tir et le filet. On prend abs(x) pour standardiser la patinoire."""
-    distance = np.sqrt((goal_x - abs(float(x_coord)))**2 + (float(y_coord) - goal_y)**2)
-    return distance
-```
+Malheureusement, il n'y a pas de convention typique tel que l'équipe qui joue chez elle commence à droite. Donc, afin de calculer la distance des tirs, il fallait s'assurer que le calcul se faisait avec le bon filet (celui que l'équipe attaque réellement). Nous avons donc d'abord implémenté une fonction qui trouve le côté d'attaque de l'équipe au moment du tir, puis nous calculons la distance euclidienne entre les coordonnées du tir (xCoord, yCoord) et les coordonnées du filet visé (x_but, 0) où x_but ∈ {-89,+89}.
+
+Pour trouver le côté d'attaque on s'appui sur l'idée suivante : une équipe tire majoritairement vers le filet adverse au cours d'un période donnée. Donc on regroupe les tirs d'une même équipe par période et on observe la distribution des xCoord. Si la majorité sont positives on en déduit que l'équipe attaque le filet en x = +89 et à l'inverse si la majorité est négative on conclut qu'elle attaque le filet en x = -89.
 
 # Probabilité de but selon la distance + le type de tir
 ![Nombre de tirs(barres) + nombre de buts(courbe)](../images/buts_dist_type_2023.png)
